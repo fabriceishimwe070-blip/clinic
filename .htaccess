@@ -1,0 +1,36 @@
+# ─── Pro-Clinic .htaccess ────────────────────────────────────────────────────
+# Apache config for InfinityFree (or any Apache shared host)
+
+Options -Indexes
+ServerSignature Off
+
+# ── PHP settings (InfinityFree supports php_value) ───────────────────────────
+php_value session.cookie_httponly 1
+php_value session.use_only_cookies 1
+php_value session.use_strict_mode 1
+php_value display_errors 0
+php_value log_errors 1
+
+# ── Security headers ─────────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "same-origin"
+</IfModule>
+
+# ── Block direct access to config/session files ───────────────────────────────
+<FilesMatch "^(config\.php|session\.php|db\.php|create_admin\.php)$">
+    Order deny,allow
+    Deny from all
+    Allow from 127.0.0.1
+</FilesMatch>
+
+# Wait — config/session/db.php must be server-side includeable but not web-accessible.
+# The FilesMatch above blocks direct browser access but PHP includes still work.
+
+# ── Redirect HTTP to HTTPS if available ──────────────────────────────────────
+# Uncomment the lines below once you have SSL on InfinityFree:
+# RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
